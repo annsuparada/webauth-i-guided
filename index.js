@@ -17,8 +17,10 @@ server.get('/', (req, res) => {
 });
 
 server.post('/api/register', (req, res) => {
-  let user = req.body;
-
+  const credentials = req.body;
+  const hash = bcrypt.hashSync(credentials.password, 14);
+  credentials.password = hash;
+  
   Users.add(user)
     .then(saved => {
       res.status(201).json(saved);
@@ -30,8 +32,10 @@ server.post('/api/register', (req, res) => {
 
 server.post('/api/login', (req, res) => {
   let { username, password } = req.body;
-
-  Users.findBy({ username })
+  if (!user || !bcrypt.compareSync(credentials.password, user.password)) {
+    return res.status(401).json({ error: 'Incorrect credentials' });
+  } else {
+    Users.findBy({ username })
     .first()
     .then(user => {
       if (user) {
@@ -43,6 +47,8 @@ server.post('/api/login', (req, res) => {
     .catch(error => {
       res.status(500).json(error);
     });
+  }
+ 
 });
 
 server.get('/api/users', (req, res) => {
