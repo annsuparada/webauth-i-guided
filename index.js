@@ -47,7 +47,7 @@ server.post('/api/login', (req, res) => {
     });
 });
 
-server.get('/api/users', (req, res) => {
+server.get('/api/users', restricted, (req, res) => {
   Users.find()
     .then(users => {
       res.json(users);
